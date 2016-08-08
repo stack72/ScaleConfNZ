@@ -38,3 +38,22 @@ output "vpn_setup_command" {
 output "vpn_web_console" {
   value = "${format("https://%s/", module.vpn.vpn_ip)}"
 }
+
+variable "consul_ami" {
+    default = "ami-558abf36"
+}
+module "consul" {
+    source = "../modules/consul"
+
+    cluster_name = "scale-conf"
+
+    ami = "${var.consul_ami}"
+    vpc_id = "${module.vpc.vpc_id}"
+    subnets = "${module.vpc.private_subnets}"
+
+    key_name = "${aws_key_pair.ssh_key.key_name}"
+    instance_type = "t2.micro"
+}
+output "consul_web_ui" {
+  value = "${format("http://%s:8500/", module.consul.elb_address)}"
+}
